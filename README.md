@@ -17,6 +17,85 @@
 
 ---
 
+## Guía de este fork (español)
+
+Este repositorio es **[tunonalves/nanoclaw](https://github.com/tunonalves/nanoclaw)**,
+un fork de [qwibitai/nanoclaw](https://github.com/qwibitai/nanoclaw). Se conserva
+más abajo la documentación original, sus créditos y la licencia MIT. Las
+instrucciones originales que crean un fork nuevo no son necesarias para clonar
+este repositorio existente.
+
+### Qué contiene
+
+NanoClaw es un asistente basado en TypeScript/Node.js: un proceso coordina
+mensajes, estado en SQLite, tareas programadas y agentes ejecutados en
+contenedores. No es una interfaz web lista para usar. En este árbol,
+`src/channels/index.ts` contiene marcadores pero no importa implementaciones de
+canales: WhatsApp, Telegram y otras integraciones se incorporan mediante las
+skills correspondientes, no están activadas por clonar el repositorio.
+
+### Requisitos y puesta en marcha
+
+- Node.js **20 o superior**, según `package.json`, y npm.
+- Git, Claude Code y acceso autorizado al proveedor del modelo.
+- Un runtime de contenedores compatible: Docker o la alternativa Apple
+  Container documentada para macOS; en Windows, usar WSL2.
+- Configurar OneCLI y la autenticación del canal elegido durante el setup.
+  No subir tokens, claves, sesiones ni archivos `.env` al repositorio.
+
+```bash
+git clone git@github.com:tunonalves/nanoclaw.git
+cd nanoclaw
+claude
+```
+
+Dentro del prompt de Claude Code, ejecutar `/setup`. No es un comando de Bash.
+Consultar antes el [flujo de setup](.claude/skills/setup/SKILL.md): instala
+dependencias, configura servicios y puede modificar el entorno del equipo.
+Revisar los permisos y montajes antes de habilitar un canal. La instalación y
+autenticación completas requieren interacción; esta guía no las da por hechas.
+
+### Desarrollo y comprobaciones
+
+Para instalar las dependencias del host y comprobar el código, sin iniciar el
+asistente:
+
+```bash
+npm ci
+npm run typecheck
+npm test
+npm run build
+```
+
+Estos scripts están definidos en `package.json`; Vitest busca pruebas en
+`src/` y `setup/`. `better-sqlite3` es un módulo nativo y puede requerir
+herramientas de compilación si no hay un binario compatible con el entorno.
+Tras completar el setup, `npm start` ejecuta `dist/index.js` y `npm run dev`
+ejecuta `src/index.ts` mediante `tsx`; no sustituyen la configuración de canales
+y contenedores. La existencia de estos comandos no implica que las pruebas o
+las integraciones hayan sido ejecutadas en el entorno del lector.
+
+### Dónde mirar
+
+| Ruta | Responsabilidad |
+| --- | --- |
+| `src/index.ts` | Orquestación y ciclo de mensajes |
+| `src/channels/` | Registro de canales y punto de integración |
+| `src/db.ts` | Persistencia SQLite |
+| `src/container-runner.ts` | Ejecución de agentes en contenedores |
+| `src/task-scheduler.ts` | Tareas programadas |
+| `setup/` | Pasos de configuración y verificación |
+| `container/` | Entorno del agente y skills de contenedor |
+| `.claude/skills/` | Instrucciones de instalación y personalización |
+
+Antes de modificar o desplegar, leer [CONTRIBUTING.md](CONTRIBUTING.md),
+[el modelo de seguridad](docs/SECURITY.md) y [la licencia](LICENSE). El aislamiento
+depende también de los montajes y permisos: no tratar un contenedor como una
+garantía absoluta de seguridad. Enviar cambios de este fork a
+`tunonalves/nanoclaw`; contribuir al proyecto original es una decisión aparte.
+
+---
+
 ## Why I Built NanoClaw
 
 [OpenClaw](https://github.com/openclaw/openclaw) is an impressive project, but I wouldn't have been able to sleep if I had given complex software I didn't understand full access to my life. OpenClaw has nearly half a million lines of code, 53 config files, and 70+ dependencies. Its security is at the application level (allowlists, pairing codes) rather than true OS-level isolation. Everything runs in one Node process with shared memory.
